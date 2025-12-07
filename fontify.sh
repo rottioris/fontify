@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ==> [ Version 1.1.0 ] <==
+# ==> [ Version 1.2.0 ] <==
 set -e
 set -u
 
@@ -63,24 +63,42 @@ check_yay() {
     fi
 }
 
+show_font_test() {
+    local type="${1:-normal}"
+    echo
+    echo -e "${LILAC}Prueba de iconos:${RESET}     "
+    echo -e "${LILAC}Prueba de emojis:${RESET} 😀  🚀  ❤️"
+    if [[ "$type" == "japanese" ]]; then
+        echo -e "${LILAC}Prueba de caracteres japoneses:${RESET} こんにちは 世界"
+    fi
+    echo
+    msg_ok "Fuente instalada correctamente."
+}
+
 install_pkg() {
     local pkg="$1"
     msg_action "Instalando $pkg..."
     if pacman -Si "$pkg" &>/dev/null; then
         sudo pacman -S --needed --noconfirm "$pkg"
         msg_ok "Instalado desde pacman."
+    elif command -v yay &>/dev/null; then
+        yay -S --needed --noconfirm "$pkg" && msg_ok "Instalado desde AUR." || msg_error "No se pudo instalar $pkg desde AUR."
+    else
+        msg_error "No se puede instalar $pkg (yay no disponible)."
         return
     fi
 
-    if command -v yay &>/dev/null; then
-        if yay -S --needed --noconfirm "$pkg"; then
-            msg_ok "Instalado desde AUR."
-        else
-            msg_error "No se pudo instalar $pkg desde AUR."
-        fi
+    # Recargar cache de fuentes
+    fc-cache -fv >/dev/null 2>&1
+
+    # Mostrar pruebas según la fuente
+    if [[ "$pkg" =~ cjk ]]; then
+        show_font_test "japanese"
     else
-        msg_error "No se puede instalar $pkg (yay no disponible)."
+        show_font_test
     fi
+
+    read -p "$(echo -e "${MINT}Presiona Enter para continuar…${RESET}")"
 }
 
 install_selected_fonts() {
@@ -96,7 +114,7 @@ install_selected_fonts() {
         echo -e " ${YELLOW}6${RESET}) ${PINK}Microsoft Core Fonts (AUR)${RESET}"
         echo -e " ${YELLOW}7${RESET}) ${PINK}FontAwesome (AUR)${RESET}"
         echo -e " ${YELLOW}8${RESET}) ${PINK}Material Icons (AUR)${RESET}"
-        echo -e " ${YELLOW}9${RESET}) ${PINK}Noto CJK (Jap/Ch/Ko)${RESET}"
+        echo -e " ${YELLOW}9${RESET}) ${PINK}Noto CJK (japonés/chino/coreano)${RESET}"
         echo -e " ${YELLOW}10${RESET}) ${MINT}Instalar TODO el pack recomendado${RESET}"
         echo -e " ${YELLOW}0${RESET}) ${LILAC}Volver al menú principal${RESET}\n"
 
@@ -126,7 +144,6 @@ install_selected_fonts() {
             0) break ;;
             *) msg_error "Opción inválida" ;;
         esac
-        read -p "$(echo -e "${MINT}Presiona Enter para continuar…${RESET}")"
     done
 }
 
@@ -162,7 +179,6 @@ configure_fontconfig() {
         </test>
         <edit name="family" mode="append">
             <string>Noto Color Emoji</string>
-            <string>Noto Sans CJK JP</string>
         </edit>
     </match>
 
@@ -199,7 +215,6 @@ while true; do
             install_pkg ttf-font-awesome
             install_pkg material-icons
             install_pkg noto-fonts-cjk
-            read -p "$(echo -e "${MINT}Presiona Enter para volver al menú principal…${RESET}")"
             ;;
         2)
             install_selected_fonts
@@ -220,10 +235,3 @@ while true; do
             ;;
     esac
 done
-
-configure_fontconfig
-
-echo -e "${LILAC}Prueba de iconos:${RESET}     "
-echo -e "${LILAC}Prueba de emojis:${RESET} 😀  🚀  ❤️"
-echo -e "${LILAC}Prueba de caracteres japoneses:${RESET} 漢字 かな カタカナ"
-echo -e "${MINT}[✔] Instalación finalizada.${RESET}"
