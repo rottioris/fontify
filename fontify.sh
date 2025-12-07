@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ==> [ Version 1.0.0 ] <==
+# ==> [ Version 1.1.0 ] <==
 set -e
 set -u
 
@@ -96,7 +96,8 @@ install_selected_fonts() {
         echo -e " ${YELLOW}6${RESET}) ${PINK}Microsoft Core Fonts (AUR)${RESET}"
         echo -e " ${YELLOW}7${RESET}) ${PINK}FontAwesome (AUR)${RESET}"
         echo -e " ${YELLOW}8${RESET}) ${PINK}Material Icons (AUR)${RESET}"
-        echo -e " ${YELLOW}9${RESET}) ${MINT}Instalar TODO el pack recomendado${RESET}"
+        echo -e " ${YELLOW}9${RESET}) ${PINK}Noto CJK (Jap/Ch/Ko)${RESET}"
+        echo -e " ${YELLOW}10${RESET}) ${MINT}Instalar TODO el pack recomendado${RESET}"
         echo -e " ${YELLOW}0${RESET}) ${LILAC}Volver al menú principal${RESET}\n"
 
         read -p "$(echo -e "${PINK}Selecciona una opción: ${RESET}")" op
@@ -110,7 +111,8 @@ install_selected_fonts() {
             6) install_pkg ttf-ms-fonts ;;
             7) install_pkg ttf-font-awesome ;;
             8) install_pkg material-icons ;;
-            9)
+            9) install_pkg noto-fonts-cjk ;;
+            10)
                 install_pkg ttf-jetbrains-mono-nerd
                 install_pkg ttf-fira-code-nerd
                 install_pkg ttf-dejavu
@@ -119,6 +121,7 @@ install_selected_fonts() {
                 install_pkg ttf-ms-fonts
                 install_pkg ttf-font-awesome
                 install_pkg material-icons
+                install_pkg noto-fonts-cjk
                 ;;
             0) break ;;
             *) msg_error "Opción inválida" ;;
@@ -159,6 +162,7 @@ configure_fontconfig() {
         </test>
         <edit name="family" mode="append">
             <string>Noto Color Emoji</string>
+            <string>Noto Sans CJK JP</string>
         </edit>
     </match>
 
@@ -194,6 +198,7 @@ while true; do
             install_pkg ttf-ms-fonts
             install_pkg ttf-font-awesome
             install_pkg material-icons
+            install_pkg noto-fonts-cjk
             read -p "$(echo -e "${MINT}Presiona Enter para volver al menú principal…${RESET}")"
             ;;
         2)
@@ -220,4 +225,5 @@ configure_fontconfig
 
 echo -e "${LILAC}Prueba de iconos:${RESET}     "
 echo -e "${LILAC}Prueba de emojis:${RESET} 😀  🚀  ❤️"
+echo -e "${LILAC}Prueba de caracteres japoneses:${RESET} 漢字 かな カタカナ"
 echo -e "${MINT}[✔] Instalación finalizada.${RESET}"
